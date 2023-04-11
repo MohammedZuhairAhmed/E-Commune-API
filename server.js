@@ -9,11 +9,30 @@ const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 const connectDB = require("./config/dbConnection");
 const { default: mongoose } = require("mongoose");
+const passport = require("passport");
+const passportLocal = require("passport-local").Strategy;
+const session = require("express-session");
+const bodyParser = require("body-parser");
+
 const PORT = process.env.PORT || 3500;
 
 console.log(process.env.NODE_ENV);
 
 connectDB();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: "secretcode",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(cookieParser("secretcode"));
+app.use(passport.initialize());
+app.use(passport.session());
+require("./passportConfig")(passport);
 
 app.use(logger);
 app.use(cors(corsOptions));
@@ -22,6 +41,7 @@ app.use(cookieParser());
 
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/", require("./routes/root"));
+app.use("/auth", require("./routes/authRoutes"));
 app.use("/commuter", require("./routes/commuterRoutes"));
 app.use("/organization", require("./routes/organizationRoutes"));
 app.use("/bus", require("./routes/busRoutes"));
