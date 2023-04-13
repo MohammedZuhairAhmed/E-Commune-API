@@ -9,9 +9,10 @@ const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 const connectDB = require("./config/dbConnection");
 const { default: mongoose } = require("mongoose");
-// const passport = require("passport");
-// const passportLocal = require("passport-local").Strategy;
-// const session = require("express-session");
+const passport = require("passport");
+// eslint-disable-next-line no-unused-vars
+const passportLocal = require("passport-local").Strategy;
+const session = require("express-session");
 const bodyParser = require("body-parser");
 
 const PORT = process.env.PORT || 3500;
@@ -23,19 +24,18 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
-// app.use(
-//   session({
-//     secret: "secretcode",
-//     resave: true,
-//     saveUninitialized: true,
-//   })
-// );
-// app.use(cookieParser("secretcode"));
-// app.use(passport.initialize());
-// app.use(passport.session());
-// require("./config/passport.config")(passport);
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(cookieParser(process.env.SECRET));
+app.use(passport.initialize());
+app.use(passport.session());
+require("./config/passport.config")(passport);
 app.use(logger);
-app.use(cookieParser());
 app.use(express.json());
 
 app.use("/", express.static(path.join(__dirname, "public")));

@@ -1,22 +1,24 @@
-const User = require("./user");
+const Commuter = require("../models/commuter");
 const bcrypt = require("bcrypt");
 const localStrategy = require("passport-local").Strategy;
 
 module.exports = function (passport) {
   passport.use(
-    new localStrategy((username, password, done) => {
-      User.findOne({ username: username }, (err, user) => {
-        if (err) throw err;
-        if (!user) return done(null, false);
-        bcrypt.compare(password, user.password, (err, result) => {
-          if (err) throw err;
-          if (result === true) {
-            return done(null, user);
-          } else {
-            return done(null, false);
-          }
-        });
-      });
+    new localStrategy(async (username, password, done) => {
+      try {
+        const user = await Commuter.findOne({ username: username });
+        if (!user) {
+          return done(null, false, { message: "Incorrect username." });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          return done(null, user);
+        } else {
+          return done(null, false, { message: "Incorrect password." });
+        }
+      } catch (err) {
+        return done(err);
+      }
     })
   );
 
@@ -24,11 +26,15 @@ module.exports = function (passport) {
     cb(null, user.id);
   });
   passport.deserializeUser((id, cb) => {
-    User.findOne({ _id: id }, (err, user) => {
-      const userInformation = {
-        username: user.username,
-      };
-      cb(err, userInformation);
-    });
+    Commuter.findOne({ _id: id })
+      .then((user) => {
+        const userInformation = {
+          username: user.username,
+        };
+        cb(null, userInformation);
+      })
+      .catch((err) => {
+        cb(err);
+      });
   });
 };

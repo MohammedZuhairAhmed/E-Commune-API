@@ -1,6 +1,10 @@
 const Commuter = require("../models/commuter");
 const Organization = require("../models/organization");
 const bcrypt = require("bcrypt");
+const passport = require("passport");
+// eslint-disable-next-line no-unused-vars
+const passportLocal = require("passport-local").Strategy;
+require("../config/passport.config")(passport);
 
 const asyncHandler = require("express-async-handler");
 
@@ -86,7 +90,20 @@ const createNewOrganization = asyncHandler(async (req, res) => {
   }
 });
 
-const loginCommuter = (req, res) => {};
+const loginCommuter = (req, res, next) => {
+  // eslint-disable-next-line no-unused-vars
+  passport.authenticate("local", (err, user, info) => {
+    if (err) throw err;
+    if (!user) res.send("No User Exists");
+    else {
+      req.logIn(user, (err) => {
+        if (err) throw err;
+        res.send(req.user);
+        console.log(req.user);
+      });
+    }
+  })(req, res, next);
+};
 
 const loginOrganization = (req, res) => {};
 
