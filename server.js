@@ -26,12 +26,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(
   session({
-    secret: process.env.SECRET,
+    secret: "adoaodnawodnaowidnoawnd",
     resave: true,
     saveUninitialized: true,
   })
 );
-app.use(cookieParser(process.env.SECRET));
+app.use(cookieParser("adoaodnawodnaowidnoawnd"));
 app.use(passport.initialize());
 app.use(passport.session());
 require("./config/passport.config")(passport);
