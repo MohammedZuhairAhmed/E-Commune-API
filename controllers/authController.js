@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 // eslint-disable-next-line no-unused-vars
 const passportLocal = require("passport-local").Strategy;
-require("../config/passport.config")(passport);
 
 const asyncHandler = require("express-async-handler");
 
@@ -91,6 +90,7 @@ const createNewOrganization = asyncHandler(async (req, res) => {
 });
 
 const loginCommuter = (req, res, next) => {
+  require("../config/passport.config")(passport, "commuter");
   // eslint-disable-next-line no-unused-vars
   passport.authenticate("local", (err, user, info) => {
     if (err) throw err;
@@ -105,16 +105,21 @@ const loginCommuter = (req, res, next) => {
   })(req, res, next);
 };
 
-const loginOrganization = (req, res) => {};
-
-// @desc Logout
-// @route POST /auth/logout
-// @access Public - just to clear cookie if exists
-const logout = (req, res) => {
-  const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204); //No content
-  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
-  res.json({ message: "Cookie cleared" });
+const loginOrganization = (req, res, next) => {
+  const passportForOrganization = require("passport");
+  require("../config/passport.config")(passportForOrganization, "organization");
+  // eslint-disable-next-line no-unused-vars
+  passportForOrganization.authenticate("local", (err, user, info) => {
+    if (err) throw err;
+    if (!user) res.send("No User Exists");
+    else {
+      req.logIn(user, (err) => {
+        if (err) throw err;
+        res.send(req.user);
+        console.log(req.user);
+      });
+    }
+  })(req, res, next);
 };
 
 module.exports = {
@@ -122,5 +127,4 @@ module.exports = {
   createNewOrganization,
   loginCommuter,
   loginOrganization,
-  logout,
 };
