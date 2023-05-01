@@ -4,6 +4,19 @@ const loginLimiter = require("../middleware/loginLimiter");
 const authController = require("../controllers/authController");
 
 router.route("/").post(loginLimiter);
+router.get("/:model/auth/:method/:id", (req, res) => {
+  const model = req.params.model;
+  const method = req.params.method;
+  const id = req.params.id;
+
+  if (model === "organization" && method === "id") {
+    authController.loginOrganizationID(req, res, id);
+  } else if (model === "commuter" && method === "id") {
+    authController.loginCommuterID(req, res, id);
+  } else {
+    res.status(400).json({ error: "Invalid model or method" });
+  }
+});
 router.post("/:model/auth/:method", (req, res) => {
   const model = req.params.model;
   const method = req.params.method;

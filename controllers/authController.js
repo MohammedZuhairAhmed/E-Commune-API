@@ -122,9 +122,51 @@ const loginOrganization = (req, res, next) => {
   })(req, res, next);
 };
 
+const loginCommuterID = asyncHandler(async (req, res, id) => {
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "All mandatory fields are required" });
+  }
+
+  try {
+    const data = await Commuter.findById(id).select("-password").lean();
+
+    if (data) {
+      return res.status(200).json(data);
+    } else {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+  } catch (error) {
+    return res.status(400).json({ message: "Invalid ID" });
+  }
+});
+
+const loginOrganizationID = asyncHandler(async (req, res, id) => {
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "All mandatory fields are required" });
+  }
+
+  try {
+    const data = await Organization.findById(id).select("-password").lean();
+
+    if (data) {
+      return res.status(200).send(data);
+    } else {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+  } catch (error) {
+    return res.status(400).json({ message: "Invalid ID" });
+  }
+});
+
 module.exports = {
   createNewCommuter,
   createNewOrganization,
   loginCommuter,
   loginOrganization,
+  loginOrganizationID,
+  loginCommuterID,
 };

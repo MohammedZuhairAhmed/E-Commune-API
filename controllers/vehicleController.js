@@ -1,4 +1,4 @@
-const Bus = require("../models/Bus");
+const Bus = require("../models/vehicle");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
