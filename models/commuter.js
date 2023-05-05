@@ -24,9 +24,9 @@ const commuterSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  selected_bus_ids: {
+  selected_vehicle_ids: {
     type: [mongoose.Schema.Types.ObjectId],
-    ref: "Bus",
+    ref: "Vehicle",
   },
 });
 
