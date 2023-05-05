@@ -13,12 +13,26 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  fromLat: {
+    type: Number,
+    required: true,
+  },
+  fromLong: {
+    type: Number,
+    required: true,
+  },
   to: {
     type: String,
     required: true,
   },
-  mapLink: {},
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "Organization" },
+  toLat: {
+    type: Number,
+    required: true,
+  },
+  toLong: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Vehicle = mongoose.model("Vehicle", vehicleSchema);

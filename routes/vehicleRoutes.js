@@ -4,7 +4,7 @@ const vehicleController = require("../controllers/vehicleController");
 
 router
   .route("/")
-  .get(vehicleController.gettAllvehicles)
+  .get(vehicleController.getAllvehicles)
   .post(vehicleController.createNewvehicle)
   .patch(vehicleController.updatevehicle)
   .delete(vehicleController.deletevehicle);
