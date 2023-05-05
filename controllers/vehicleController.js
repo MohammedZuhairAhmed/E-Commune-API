@@ -89,50 +89,79 @@ const createNewvehicle = asyncHandler(async (req, res) => {
 });
 
 const updatevehicle = asyncHandler(async (req, res) => {
-  // const { id, name, number, email, password } = req.body;
-  // // confirm data
-  // if (!name || !number || !email || !id) {
-  //   return res
-  //     .status(400)
-  //     .json({ message: "All mandatory fields are required" });
-  // }
-  // const organization = await Organization.findById(id).exec();
-  // if (!organization) {
-  //   return res.status(400).json({ message: "Organization not found" });
-  // }
-  // //check for duplicate
-  // const duplicate = await Organization.findOne({ name }).lean().exec();
-  // //allow update to original commuter
-  // if (duplicate && duplicate?._id.toString() !== id) {
-  //   return res.status(409).json({
-  //     message: "Organization with same name already exists in the database",
-  //   });
-  // }
-  // organization.name = name;
-  // organization.email = email;
-  // organization.number = number;
-  // if (password) {
-  //   //hasing password
-  //   organization.password = await bcrypt.hash(password, 10);
-  // }
-  // const updatedOrganization = await organization.save();
-  // res.json({
-  //   message: `Organization with name : ${updatedOrganization.name} updated`,
-  // });
+  const {
+    id,
+    name,
+    type,
+    from,
+    to,
+    fromLat,
+    fromLong,
+    toLat,
+    toLong,
+    number,
+    orgId,
+  } = req.body;
+
+  if (
+    !id ||
+    !name ||
+    !type ||
+    !from ||
+    !to ||
+    !fromLat ||
+    !fromLong ||
+    !toLat ||
+    !toLong ||
+    !number ||
+    !orgId
+  ) {
+    return res
+      .status(400)
+      .json({ message: "All mandatory fields are required" });
+  }
+
+  const vehicle = await Vehicle.findById(id).exec();
+  if (!vehicle) {
+    return res.status(400).json({ message: "Vehicle not found" });
+  }
+  //check for duplicate
+  const duplicate = await Vehicle.findOne({ number }).lean().exec();
+  //allow update to original commuter
+  if (duplicate && duplicate?._id.toString() !== id) {
+    return res.status(409).json({
+      message:
+        "Vehicle with same vehicle number already exists in the database",
+    });
+  }
+  vehicle.name = name;
+  vehicle.type = type;
+  vehicle.from = from;
+  vehicle.to = to;
+  vehicle.fromLat = fromLat;
+  vehicle.fromLong = fromLong;
+  vehicle.toLat = toLat;
+  vehicle.toLong = toLong;
+  vehicle.number = number;
+
+  const updatedVehicle = await Vehicle.save();
+  res.json({
+    message: `Vehilce with number : ${updatedVehicle.number} updated`,
+  });
 });
 
 const deletevehicle = asyncHandler(async (req, res) => {
-  // const { id } = req.body;
-  // if (!id) {
-  //   return res.status(400).json({ message: "Organization ID required" });
-  // }
-  // const organization = await Organization.findById(id).exec();
-  // if (!organization) {
-  //   return res.status(400).json({ message: "Organization ID not found" });
-  // }
-  // const result = await organization.deleteOne();
-  // const reply = `name ${result.name} with ID ${result._id} deleted`;
-  // res.json(reply);
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: "Vehicle ID required" });
+  }
+  const vehicle = await Vehicle.findById(id).exec();
+  if (!vehicle) {
+    return res.status(400).json({ message: "vehicle ID not found" });
+  }
+  const result = await vehicle.deleteOne();
+  const reply = `vehicle with number ${result.number} with ID ${result._id} deleted`;
+  res.json(reply);
 });
 
 module.exports = {
