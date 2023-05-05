@@ -41,7 +41,7 @@ app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/", require("./routes/root"));
 app.use("/", require("./routes/authRoutes"));
-// app.use("/", require("./routes/vehicleRoutes"));
+app.use("/vehicle", require("./routes/vehicleRoutes"));
 app.use("/commuter", require("./routes/commuterRoutes"));
 app.use("/organization", require("./routes/organizationRoutes"));
 
