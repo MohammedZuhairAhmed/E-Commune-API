@@ -28,6 +28,23 @@ const commuterSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Vehicle",
   },
+  orgID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Organization",
+  },
+  opted_for_program: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+  location: {
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
+  },
 });
 
 const Commuter = mongoose.model("Commuter", commuterSchema);

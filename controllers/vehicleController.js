@@ -23,6 +23,8 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     toLong,
     number,
     orgId,
+    arrivalTime,
+    departureTime,
   } = req.body;
 
   if (
@@ -35,7 +37,9 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     !toLat ||
     !toLong ||
     !number ||
-    !orgId
+    !orgId ||
+    !arrivalTime ||
+    !departureTime
   ) {
     return res
       .status(400)
@@ -62,6 +66,8 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     toLat,
     toLong,
     number,
+    arrivalTime,
+    departureTime,
   };
 
   // create and store new vehicle
@@ -100,7 +106,8 @@ const updatevehicle = asyncHandler(async (req, res) => {
     toLat,
     toLong,
     number,
-    orgId,
+    arrivalTime,
+    departureTime,
   } = req.body;
 
   if (
@@ -114,7 +121,8 @@ const updatevehicle = asyncHandler(async (req, res) => {
     !toLat ||
     !toLong ||
     !number ||
-    !orgId
+    !arrivalTime ||
+    !departureTime
   ) {
     return res
       .status(400)
@@ -143,6 +151,8 @@ const updatevehicle = asyncHandler(async (req, res) => {
   vehicle.toLat = toLat;
   vehicle.toLong = toLong;
   vehicle.number = number;
+  vehicle.arrivalTime = arrivalTime;
+  vehicle.departureTime = departureTime;
 
   const updatedVehicle = await Vehicle.save();
   res.json({
@@ -159,6 +169,13 @@ const deletevehicle = asyncHandler(async (req, res) => {
   if (!vehicle) {
     return res.status(400).json({ message: "vehicle ID not found" });
   }
+
+  // Remove vehicle ID from the organization's selected_vehicle_ids array
+  await Organization.updateMany(
+    { selected_vehicle_ids: { $in: [id] } },
+    { $pull: { selected_vehicle_ids: id } }
+  );
+
   const result = await vehicle.deleteOne();
   const reply = `vehicle with number ${result.number} with ID ${result._id} deleted`;
   res.json(reply);

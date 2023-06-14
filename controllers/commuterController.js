@@ -1,4 +1,5 @@
 const Commuter = require("../models/commuter");
+const Organization = require("../models/organization");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
@@ -12,50 +13,95 @@ const gettAllCommuters = asyncHandler(async (req, res) => {
 });
 
 const createNewCommuter = asyncHandler(async (req, res) => {
-  const { fname, lname, username, number, email, password } = req.body;
+  const {
+    fname,
+    lname,
+    username,
+    number,
+    email,
+    password,
+    orgID,
+    opted_for_program,
+  } = req.body;
 
-  // confirm data
-  if (!fname || !username || !number || !email || !password) {
+  // Confirm data
+  if (
+    !fname ||
+    !username ||
+    !number ||
+    !email ||
+    !password ||
+    !orgID ||
+    !opted_for_program
+  ) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
   }
 
-  //check duplicate
+  // Check for duplicate username
   const duplicate = await Commuter.findOne({ username }).lean().exec();
 
   if (duplicate) {
     return res.status(409).json({ message: "Duplicate username" });
   }
 
-  //Hash password
+  // Hash password
   const hashedPwd = await bcrypt.hash(password, 10);
+
+  // Create commuter object
   const commuterObject = {
     fname,
     lname,
     username,
     number,
     email,
+    orgID,
+    opted_for_program,
+    location: {
+      latitude: req.body.location?.latitude,
+      longitude: req.body.location?.longitude,
+    },
     password: hashedPwd,
   };
 
-  // create and store new user
+  // Create and store new user
   const commuter = await Commuter.create(commuterObject);
 
   if (commuter) {
-    //created
+    // Find organization by ID
+    const organization = await Organization.findById(orgID);
+
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    // Update selected_vehicle_ids array in the organization collection
+    organization.employee_ids.push(commuter._id);
+    await organization.save();
+
     res.status(201).json({
-      message: `New user with username ${username} and mail-id ${email} created`,
+      message: `New user with username ${username} and email ${email} created`,
     });
   } else {
-    res.status(400).json({ message: "Invalid data recieved!" });
+    res.status(400).json({ message: "Invalid data received!" });
   }
 });
 
 const updateCommuter = asyncHandler(async (req, res) => {
-  const { id, fname, lname, username, number, email, password } = req.body;
+  const {
+    id,
+    fname,
+    lname,
+    username,
+    number,
+    email,
+    password,
+    opted_for_program,
+    location,
+  } = req.body;
 
-  // confirm data
+  // Confirm data
   if (!fname || !username || !number || !email || !id) {
     return res
       .status(400)
@@ -68,11 +114,11 @@ const updateCommuter = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Commuter not found" });
   }
 
-  //check for duplicate
+  // Check for duplicate username
   const duplicate = await Commuter.findOne({ username }).lean().exec();
 
-  //allow update to original commuter
-  if (duplicate && duplicate?._id.toString() !== id) {
+  // Allow update to original commuter
+  if (duplicate && duplicate._id.toString() !== id) {
     return res.status(409).json({ message: "Duplicate username" });
   }
 
@@ -81,10 +127,16 @@ const updateCommuter = asyncHandler(async (req, res) => {
   commuter.lname = lname;
   commuter.email = email;
   commuter.number = number;
+  commuter.opted_for_program = opted_for_program;
 
   if (password) {
-    //hasing password
+    // Hash password
     commuter.password = await bcrypt.hash(password, 10);
+  }
+
+  if (location) {
+    // Update location if provided
+    commuter.location = location;
   }
 
   const updatedCommuter = await commuter.save();
@@ -104,6 +156,12 @@ const deleteCommuter = asyncHandler(async (req, res) => {
   if (!commuter) {
     return res.status(400).json({ message: "commuter ID not found" });
   }
+
+  // Remove vehicle ID from the organization's selected_vehicle_ids array
+  await Organization.updateMany(
+    { employee_ids: { $in: [id] } },
+    { $pull: { employee_ids: id } }
+  );
 
   const result = await commuter.deleteOne();
 

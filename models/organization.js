@@ -21,6 +21,18 @@ const organizationSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Vehicle",
   },
+  employee_ids: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Commuter",
+  },
+  location: {
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
+  },
 });
 
 const Organization = mongoose.model("Organization", organizationSchema);
