@@ -14,45 +14,44 @@ const gettAllOrganizations = asyncHandler(async (req, res) => {
 });
 
 const createNewOrganization = asyncHandler(async (req, res) => {
-  const { name, number, email, password, location } = req.body;
-
+  // const { name, number, email, password, from, to } = req.body;
+  // return res.json({message : `hello ${name} ${from} ${to} `});
   // Confirm data
-  if (!name || !number || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "All mandatory fields are required" });
-  }
+  // if (!name || !number || !email || !password || !from || !to) {
+  //   return res.status(400).json({ message: "All mandatory fields are required" });
+  // }
 
-  // Check duplicate
-  const duplicate = await Organization.findOne({ name }).lean().exec();
+  // // Check duplicate
+  // const duplicate = await Organization.findOne({ name }).lean().exec();
 
-  if (duplicate) {
-    return res.status(409).json({
-      message: "Organization with the same name already exists in the database",
-    });
-  }
+  // if (duplicate) {
+  //   return res.status(409).json({
+  //     message: "Organization with the same name already exists in the database",
+  //   });
+  // }
 
-  // Hash password
-  const hashedPwd = await bcrypt.hash(password, 10);
-  const organizationObject = {
-    name,
-    number,
-    email,
-    password: hashedPwd,
-    location, // Assign the location object to the organizationObject
-  };
+  // // Hash password
+  // const hashedPwd = await bcrypt.hash(password, 10);
+  // const newOrg = new Organization({
+  //   name,
+  //   number,
+  //   email,
+  //   password: hashedPwd,
+  //   from,
+  //   to,
+  // })
 
-  // Create and store new organization
-  const organization = await Organization.create(organizationObject);
+  // // Create and store new organization
+  // const organization = await Organization.create(newOrg);
 
-  if (organization) {
-    // Created
-    res.status(201).json({
-      message: `New organization with name ${name} and mail-id ${email} created`,
-    });
-  } else {
-    res.status(400).json({ message: "Invalid data received!" });
-  }
+  // if (organization) {
+  //   // Created
+  //   res.status(201).json({
+  //     message: `New organization with name ${name} and mail-id ${email} created`,
+  //   });
+  // } else {
+  //   res.status(400).json({ message: "Invalid data received!" });
+  // }
 });
 
 const updateOrganization = asyncHandler(async (req, res) => {
