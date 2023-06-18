@@ -5,7 +5,11 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
 const gettAllOrganizations = asyncHandler(async (req, res) => {
-  const organizations = await Organization.find().select("-password").lean();
+  const organizations = await Organization.find()
+    .select("-password")
+    .populate("employee_ids")
+    .populate("selected_vehicle_ids")
+    .lean();
 
   if (!organizations?.length) {
     return res.status(400).json({ message: "no organizations found" });
