@@ -36,7 +36,8 @@ const createNewCommuter = asyncHandler(async (req, res) => {
     !lat ||
     !lng ||
     !orgID ||
-    !opted_for_program
+    opted_for_program === undefined ||
+    opted_for_program === null
   ) {
     return res
       .status(400)
