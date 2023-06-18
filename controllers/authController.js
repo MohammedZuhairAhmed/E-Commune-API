@@ -8,84 +8,124 @@ const passportLocal = require("passport-local").Strategy;
 const asyncHandler = require("express-async-handler");
 
 const createNewCommuter = asyncHandler(async (req, res) => {
-  const { fname, lname, username, number, email, password } = req.body;
+  const {
+    fname,
+    lname,
+    username,
+    number,
+    email,
+    password,
+    lat,
+    lng,
+    orgID,
+    opted_for_program,
+  } = req.body;
 
-  // confirm data
-  if (!fname || !username || !number || !email || !password) {
+  // Confirm data
+  if (
+    !fname ||
+    !username ||
+    !number ||
+    !email ||
+    !password ||
+    !lat ||
+    !lng ||
+    !orgID ||
+    !opted_for_program
+  ) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
   }
 
-  //check duplicate
+  // Check for duplicate username
   const duplicate = await Commuter.findOne({ username }).lean().exec();
 
   if (duplicate) {
     return res.status(409).json({ message: "Duplicate username" });
   }
 
-  //Hash password
+  // Hash password
   const hashedPwd = await bcrypt.hash(password, 10);
+
+  // Create commuter object
   const commuterObject = {
     fname,
     lname,
     username,
     number,
     email,
+    orgID,
+    opted_for_program,
+    lat,
+    lng,
     password: hashedPwd,
   };
 
-  // create and store new user
+  // Create and store new user
   const commuter = await Commuter.create(commuterObject);
 
   if (commuter) {
-    //created
+    // Find organization by ID
+    const organization = await Organization.findById(orgID);
+
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    // Update selected_vehicle_ids array in the organization collection
+    organization.employee_ids.push(commuter._id);
+    await organization.save();
+
     res.status(201).json({
-      message: `New user with username ${username} and mail-id ${email} created`,
+      message: `New user with username ${username} and email ${email} created`,
     });
   } else {
-    res.status(400).json({ message: "Invalid data recieved!" });
+    res.status(400).json({ message: "Invalid data received!" });
   }
 });
 
 const createNewOrganization = asyncHandler(async (req, res) => {
-  const { name, number, email, password } = req.body;
+  const { name, number, email, password, lat, lng } = req.body;
 
-  // confirm data
-  if (!name || !number || !email || !password) {
+  // Confirm data
+  if (!name || !number || !email || !password || !lat || !lng) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
   }
 
-  //check duplicate
+  // Check duplicate
   const duplicate = await Organization.findOne({ name }).lean().exec();
 
   if (duplicate) {
     return res.status(409).json({
-      message: "Organization with same name already exists in the database",
+      message: "Organization with the same name already exists in the database",
     });
   }
 
-  //Hash password
+  // Hash password
   const hashedPwd = await bcrypt.hash(password, 10);
+
   const organizationObject = {
     name,
     number,
     email,
     password: hashedPwd,
+    lat,
+    lng,
   };
 
-  // create and store new user
+  // Create and store new organization
   const organization = await Organization.create(organizationObject);
 
   if (organization) {
-    //created
-    res.status(201).json({
+    // Created
+    return res.status(201).json({
       message: `New organization with name ${name} and mail-id ${email} created`,
     });
   } else {
-    res.status(400).json({ message: "Invalid data recieved!" });
+    return res.status(400).json({ message: "Invalid data received!" });
   }
 });
 

@@ -24,6 +24,14 @@ const commuterSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  lat: {
+    type: Number,
+    required: true,
+  },
+  lng: {
+    type: Number,
+    required: true,
+  },
   selected_vehicle_ids: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Vehicle",
@@ -36,14 +44,6 @@ const commuterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
     required: true,
-  },
-  location: {
-    latitude: {
-      type: Number,
-    },
-    longitude: {
-      type: Number,
-    },
   },
 });
 

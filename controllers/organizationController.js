@@ -14,51 +14,54 @@ const gettAllOrganizations = asyncHandler(async (req, res) => {
 });
 
 const createNewOrganization = asyncHandler(async (req, res) => {
-  // const { name, number, email, password, from, to } = req.body;
-  // return res.json({message : `hello ${name} ${from} ${to} `});
+  const { name, number, email, password, lat, lng } = req.body;
+
   // Confirm data
-  // if (!name || !number || !email || !password || !from || !to) {
-  //   return res.status(400).json({ message: "All mandatory fields are required" });
-  // }
+  if (!name || !number || !email || !password || !lat || !lng) {
+    return res
+      .status(400)
+      .json({ message: "All mandatory fields are required" });
+  }
 
-  // // Check duplicate
-  // const duplicate = await Organization.findOne({ name }).lean().exec();
+  // Check duplicate
+  const duplicate = await Organization.findOne({ name }).lean().exec();
 
-  // if (duplicate) {
-  //   return res.status(409).json({
-  //     message: "Organization with the same name already exists in the database",
-  //   });
-  // }
+  if (duplicate) {
+    return res.status(409).json({
+      message: "Organization with the same name already exists in the database",
+    });
+  }
 
-  // // Hash password
-  // const hashedPwd = await bcrypt.hash(password, 10);
-  // const newOrg = new Organization({
-  //   name,
-  //   number,
-  //   email,
-  //   password: hashedPwd,
-  //   from,
-  //   to,
-  // })
+  // Hash password
+  const hashedPwd = await bcrypt.hash(password, 10);
 
-  // // Create and store new organization
-  // const organization = await Organization.create(newOrg);
+  const organizationObject = {
+    name,
+    number,
+    email,
+    password: hashedPwd,
+    lat,
+    lng,
+  };
 
-  // if (organization) {
-  //   // Created
-  //   res.status(201).json({
-  //     message: `New organization with name ${name} and mail-id ${email} created`,
-  //   });
-  // } else {
-  //   res.status(400).json({ message: "Invalid data received!" });
-  // }
+  // Create and store new organization
+  const organization = await Organization.create(organizationObject);
+
+  if (organization) {
+    // Created
+    return res.status(201).json({
+      message: `New organization with name ${name} and mail-id ${email} created`,
+    });
+  } else {
+    return res.status(400).json({ message: "Invalid data received!" });
+  }
 });
 
 const updateOrganization = asyncHandler(async (req, res) => {
-  const { id, name, number, email, password, location } = req.body;
+  const { id, name, number, email, password, lat, lng } = req.body;
 
   // Confirm data
-  if (!name || !number || !email || !id) {
+  if (!name || !number || !email || !id || !lat || !lng) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
@@ -83,7 +86,8 @@ const updateOrganization = asyncHandler(async (req, res) => {
   organization.name = name;
   organization.email = email;
   organization.number = number;
-  organization.location = location; // Assign the location object to the organization
+  organization.lat = lat;
+  organization.lng = lng;
 
   if (password) {
     // Hashing password

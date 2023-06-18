@@ -20,6 +20,8 @@ const createNewCommuter = asyncHandler(async (req, res) => {
     number,
     email,
     password,
+    lat,
+    lng,
     orgID,
     opted_for_program,
   } = req.body;
@@ -31,6 +33,8 @@ const createNewCommuter = asyncHandler(async (req, res) => {
     !number ||
     !email ||
     !password ||
+    !lat ||
+    !lng ||
     !orgID ||
     !opted_for_program
   ) {
@@ -58,10 +62,8 @@ const createNewCommuter = asyncHandler(async (req, res) => {
     email,
     orgID,
     opted_for_program,
-    location: {
-      latitude: req.body.location?.latitude,
-      longitude: req.body.location?.longitude,
-    },
+    lat,
+    lng,
     password: hashedPwd,
   };
 
@@ -97,12 +99,13 @@ const updateCommuter = asyncHandler(async (req, res) => {
     number,
     email,
     password,
+    lat,
+    lng,
     opted_for_program,
-    location,
   } = req.body;
 
   // Confirm data
-  if (!fname || !username || !number || !email || !id) {
+  if (!fname || !username || !number || !email || !id || !lat || !lng) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
@@ -128,17 +131,13 @@ const updateCommuter = asyncHandler(async (req, res) => {
   commuter.email = email;
   commuter.number = number;
   commuter.opted_for_program = opted_for_program;
+  commuter.lat = lat;
+  commuter.lng = lng;
 
   if (password) {
     // Hash password
     commuter.password = await bcrypt.hash(password, 10);
   }
-
-  if (location) {
-    // Update location if provided
-    commuter.location = location;
-  }
-
   const updatedCommuter = await commuter.save();
 
   res.json({ message: `${updatedCommuter.username} updated` });

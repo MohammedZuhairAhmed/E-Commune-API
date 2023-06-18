@@ -17,11 +17,11 @@ const organizationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  from: {
+  lat: {
     type: Number,
     required: true,
   },
-  to: {
+  lng: {
     type: Number,
     required: true,
   },
@@ -34,7 +34,6 @@ const organizationSchema = new mongoose.Schema({
     ref: "Commuter",
   },
 });
-
 
 const Organization = mongoose.model("Organization", organizationSchema);
 
