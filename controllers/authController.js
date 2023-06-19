@@ -171,7 +171,10 @@ const loginCommuterID = asyncHandler(async (req, res, id) => {
   }
 
   try {
-    const data = await Commuter.findById(id).select("-password").lean();
+    const data = await Commuter.findById(id)
+      .select("-password")
+      .populate("selected_vehicle_ids")
+      .lean();
 
     if (data) {
       return res.status(200).json(data);
@@ -191,7 +194,11 @@ const loginOrganizationID = asyncHandler(async (req, res, id) => {
   }
 
   try {
-    const data = await Organization.findById(id).select("-password").lean();
+    const data = await Organization.findById(id)
+      .select("-password")
+      .populate("employee_ids")
+      .populate("selected_vehicle_ids")
+      .lean();
 
     if (data) {
       return res.status(200).send(data);

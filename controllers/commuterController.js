@@ -4,7 +4,10 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
 const gettAllCommuters = asyncHandler(async (req, res) => {
-  const commuters = await Commuter.find().select("-password").lean();
+  const commuters = await Commuter.find()
+    .select("-password")
+    .populate("selected_vehicle_ids")
+    .lean();
 
   if (!commuters?.length) {
     return res.status(400).json({ message: "no commuters found" });
