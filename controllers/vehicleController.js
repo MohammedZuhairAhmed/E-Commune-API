@@ -25,6 +25,8 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     orgId,
     arrivalTime,
     departureTime,
+    seats,
+    pickupPoints,
   } = req.body;
 
   if (
@@ -39,20 +41,22 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     !number ||
     !orgId ||
     !arrivalTime ||
-    !departureTime
+    !departureTime ||
+    !seats ||
+    !pickupPoints
   ) {
     return res
       .status(400)
       .json({ message: "All mandatory fields are required" });
   }
 
-  //check duplicate
+  // Check duplicate vehicle number
   const duplicate = await Vehicle.findOne({ number }).lean().exec();
 
   if (duplicate) {
     return res.status(409).json({
       message:
-        "Vehicle with same vehicle number already exists in the database",
+        "Vehicle with the same vehicle number already exists in the database",
     });
   }
 
@@ -68,24 +72,26 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     number,
     arrivalTime,
     departureTime,
+    seats,
+    pickupPoints,
   };
 
-  // create and store new vehicle
+  // Create and store a new vehicle
   const vehicle = await Vehicle.create(vehicleObject);
 
   if (vehicle) {
-    // find organization by ID
+    // Find organization by ID
     const organization = await Organization.findById(orgId);
 
     if (!organization) {
       return res.status(404).json({ message: "Organization not found" });
     }
 
-    // update selected_vehicle_ids array in the organization collection
+    // Update selected_vehicle_ids array in the organization collection
     organization.selected_vehicle_ids.push(vehicle._id);
     await organization.save();
 
-    //created
+    // Created
     res.status(201).json({
       message: `New vehicle with name ${name} and number ${number} created and organization updated`,
     });
@@ -108,6 +114,8 @@ const updatevehicle = asyncHandler(async (req, res) => {
     number,
     arrivalTime,
     departureTime,
+    seats,
+    pickupPoints,
   } = req.body;
 
   if (
@@ -122,7 +130,9 @@ const updatevehicle = asyncHandler(async (req, res) => {
     !toLong ||
     !number ||
     !arrivalTime ||
-    !departureTime
+    !departureTime ||
+    !seats ||
+    !pickupPoints
   ) {
     return res
       .status(400)
@@ -133,15 +143,17 @@ const updatevehicle = asyncHandler(async (req, res) => {
   if (!vehicle) {
     return res.status(400).json({ message: "Vehicle not found" });
   }
-  //check for duplicate
+
+  // Check for duplicate vehicle number
   const duplicate = await Vehicle.findOne({ number }).lean().exec();
-  //allow update to original commuter
-  if (duplicate && duplicate?._id.toString() !== id) {
+  // Allow update to the original vehicle
+  if (duplicate && duplicate._id.toString() !== id) {
     return res.status(409).json({
       message:
-        "Vehicle with same vehicle number already exists in the database",
+        "Vehicle with the same vehicle number already exists in the database",
     });
   }
+
   vehicle.name = name;
   vehicle.type = type;
   vehicle.from = from;
@@ -153,10 +165,12 @@ const updatevehicle = asyncHandler(async (req, res) => {
   vehicle.number = number;
   vehicle.arrivalTime = arrivalTime;
   vehicle.departureTime = departureTime;
+  vehicle.seats = seats;
+  vehicle.pickupPoints = pickupPoints;
 
-  const updatedVehicle = await Vehicle.save();
+  const updatedVehicle = await vehicle.save();
   res.json({
-    message: `Vehilce with number : ${updatedVehicle.number} updated`,
+    message: `Vehicle with number: ${updatedVehicle.number} updated`,
   });
 });
 

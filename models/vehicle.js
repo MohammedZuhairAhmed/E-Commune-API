@@ -37,12 +37,28 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  seats: {
+    type: Number,
+    required: true,
+  },
   arrivalTime: {
     type: Date,
     required: true,
   },
   departureTime: {
     type: Date,
+    required: true,
+  },
+  pickupPoints: {
+    type: [
+      {
+        location: {
+          lat: { type: Number, required: true },
+          lng: { type: Number, required: true },
+        },
+        stopover: { type: Boolean, required: true },
+      },
+    ],
     required: true,
   },
 });
