@@ -35,4 +35,6 @@ router.post("/:model/auth/:method", (req, res) => {
   }
 });
 
+router.route("/vehicle/auth/select").patch(authController.selectVehicle);
+
 module.exports = router;

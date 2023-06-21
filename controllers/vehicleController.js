@@ -26,6 +26,7 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     arrivalTime,
     departureTime,
     seats,
+    no_of_seats,
     pickupPoints,
   } = req.body;
 
@@ -43,6 +44,7 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     !arrivalTime ||
     !departureTime ||
     !seats ||
+    !no_of_seats ||
     !pickupPoints
   ) {
     return res
@@ -74,6 +76,7 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     departureTime,
     seats,
     pickupPoints,
+    no_of_seats,
   };
 
   // Create and store a new vehicle
@@ -116,6 +119,7 @@ const updatevehicle = asyncHandler(async (req, res) => {
     departureTime,
     seats,
     pickupPoints,
+    no_of_seats,
   } = req.body;
 
   if (
@@ -132,7 +136,8 @@ const updatevehicle = asyncHandler(async (req, res) => {
     !arrivalTime ||
     !departureTime ||
     !seats ||
-    !pickupPoints
+    !pickupPoints ||
+    !no_of_seats
   ) {
     return res
       .status(400)
@@ -167,6 +172,7 @@ const updatevehicle = asyncHandler(async (req, res) => {
   vehicle.departureTime = departureTime;
   vehicle.seats = seats;
   vehicle.pickupPoints = pickupPoints;
+  vehicle.no_of_seats - no_of_seats;
 
   const updatedVehicle = await vehicle.save();
   res.json({

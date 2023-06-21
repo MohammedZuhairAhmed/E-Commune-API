@@ -38,6 +38,10 @@ const vehicleSchema = new mongoose.Schema({
     required: true,
   },
   seats: {
+    type: [Number],
+    required: true,
+  },
+  no_of_seats: {
     type: Number,
     required: true,
   },
