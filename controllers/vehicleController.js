@@ -77,6 +77,7 @@ const createNewvehicle = asyncHandler(async (req, res) => {
     seats,
     pickupPoints,
     no_of_seats,
+    available_seats: no_of_seats,
   };
 
   // Create and store a new vehicle

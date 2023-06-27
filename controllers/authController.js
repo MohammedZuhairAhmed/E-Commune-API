@@ -214,12 +214,12 @@ const loginOrganizationID = asyncHandler(async (req, res, id) => {
 const selectVehicle = asyncHandler(async (req, res) => {
   try {
     const { cid, vid, seats } = req.body;
-    let no_of_seats = 0;
+    let selected_seats = 0;
 
     seats.forEach((e) => {
-      no_of_seats += e;
+      selected_seats += e;
     });
-
+    const available_seats = Object.keys(seats).length - selected_seats;
     // Find the commuter by id
     const commuter = await Commuter.findById(cid);
     const vehicle = await Vehicle.findById(vid);
@@ -235,18 +235,17 @@ const selectVehicle = asyncHandler(async (req, res) => {
     // Push vid to selected_vehicle_ids array
     commuter.selected_vehicle_ids.push(vid);
     vehicle.seats = seats;
-    vehicle.no_of_seats = no_of_seats;
+    vehicle.available_seats = available_seats;
+    // vehicle.no_of_seats = no_of_seats;
 
     // Save the updated commuter
     await commuter.save();
     await vehicle.save();
 
-    return res
-      .status(200)
-      .json({
-        message:
-          "Vehicle added to commuter successfully and also updated the seat matrix and seat count",
-      });
+    return res.status(200).json({
+      message:
+        "Vehicle added to commuter successfully and also updated the seat matrix and seat count",
+    });
   } catch (error) {
     console.error("Error adding vehicle to commuter:", error);
     res.status(500).json({ error: "Internal server error" });

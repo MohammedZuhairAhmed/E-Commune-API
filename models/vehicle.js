@@ -45,6 +45,10 @@ const vehicleSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  available_seats: {
+    type: Number,
+    required: true,
+  },
   arrivalTime: {
     type: Date,
     required: true,
